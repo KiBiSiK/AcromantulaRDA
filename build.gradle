@@ -8,10 +8,12 @@ buildscript {
     }
     dependencies {
         classpath group: 'org.jetbrains.kotlin', name: 'kotlin-gradle-plugin', version: kotlin_version
+        classpath 'com.github.jengelman.gradle.plugins:shadow:5.2.0'
     }
 }
 
 apply plugin: 'kotlin'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 group 'net.cydhra'
 version '1.0'
@@ -27,4 +29,10 @@ dependencies {
     implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: log4j2_version
     implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: log4j2_version
     implementation group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: log4j2_version
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        kotlinOptions.jvmTarget = jvm_target
+    }
 }
