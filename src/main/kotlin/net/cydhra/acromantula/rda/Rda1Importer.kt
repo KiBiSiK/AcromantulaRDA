@@ -1,6 +1,7 @@
 package net.cydhra.acromantula.rda
 
 import net.cydhra.acromantula.features.importer.ImporterStrategy
+import net.cydhra.acromantula.features.util.FileTreeBuilder
 import net.cydhra.acromantula.workspace.WorkspaceService
 import net.cydhra.acromantula.workspace.filesystem.FileEntity
 import org.apache.logging.log4j.LogManager
@@ -51,6 +52,7 @@ class Rda1Importer : ImporterStrategy {
 
         // generate archive entry
         val archiveEntity = WorkspaceService.addArchiveEntry(fileName, parent)
+        val treeBuilder = FileTreeBuilder(archiveEntity)
 
         // extract file count
         val fileCount = ByteBuffer.wrap(headerBuffer.sliceArray((RDA_HEADER_SIZE - 4) until RDA_HEADER_SIZE))
@@ -71,6 +73,11 @@ class Rda1Importer : ImporterStrategy {
                 dictionary.sliceArray((i * FILE_HEADER_SIZE) until ((i + 1) * FILE_HEADER_SIZE))
             val dictionaryEntry = RdaDictionaryEntry(dictionaryEntryContent)
 
+            // extract file name and insert parent directories
+            val parentDirectory = treeBuilder.getParentDirectory(dictionaryEntry.filename)
+            val parentDirName = treeBuilder.getParentPath(dictionaryEntry.filename)
+            val simpleName = dictionaryEntry.filename.removePrefix(parentDirName)
+
             // read and decompress file entry
             val archiveFileContent: ByteArray
             if (dictionaryEntry.compressionFlag == 7) {
@@ -89,7 +96,7 @@ class Rda1Importer : ImporterStrategy {
                 )
             }
 
-            WorkspaceService.addFileEntry(dictionaryEntry.filename, archiveEntity, archiveFileContent)
+            WorkspaceService.addFileEntry(simpleName, parentDirectory, archiveFileContent)
         }
     }
 
