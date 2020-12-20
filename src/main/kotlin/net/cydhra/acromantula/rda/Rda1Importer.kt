@@ -44,7 +44,7 @@ class Rda1Importer : ImporterStrategy {
     }
 
     override fun import(parent: FileEntity?, fileName: String, fileContent: PushbackInputStream) {
-        val fileBuffer = fileContent.readAllBytes()
+        val fileBuffer = fileContent.readBytes()
         val headerBuffer = fileBuffer.sliceArray(0 until RDA_HEADER_SIZE)
         deobfuscateRdaBlock(headerBuffer)
 
